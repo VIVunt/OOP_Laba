@@ -9,22 +9,29 @@ using System.Windows.Forms;
 
 namespace Laba1
 {
+    public interface IDraw
+    {
+        void Draw();
+    }
+
     public partial class Form1 : Form
     {
         public Form1()
         {
             InitializeComponent();
+            comboBox1.SelectedIndex = 0;
+            comboBox2.SelectedIndex = 0;
+            comboBox3.SelectedIndex = 0;
+            comboBox4.SelectedIndex = 0;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            Graphics graph = Graphics.FromImage(bmp);
+            Graphics graph = this.CreateGraphics();
+            Pen pen = new Pen(Color.Red);
 
-            Pen pen = new Pen(Color.Green);
             graph.DrawLine(pen, 50, 90, 170, 190);
-
-            pictureBox1.Image = bmp;
+            graph.Dispose();
         }
     }
 }
