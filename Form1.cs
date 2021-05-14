@@ -13,11 +13,12 @@ namespace Laba1
 {
     public partial class Form1 : Form
     {
-        public delegate void DrawDelegate(Form1 form);
-        public event DrawDelegate ToDraw;
         private IDraw figure = null;
         private Graphics Graph;
         private Assembly assembly = Assembly.GetExecutingAssembly();
+        private List<IDraw> ListFigures = new List<IDraw>();
+        private bool Ctrl = false;
+        private bool Z = false;
 
         public Form1()
         {
@@ -50,19 +51,31 @@ namespace Laba1
         public void FieldRefresh()
         {
             Graph.Clear(System.Drawing.SystemColors.Control);
-            if (ToDraw != null) ToDraw(this);
-            if (figure != null) figure.Draw(this);
+            for (int i = 0; i < ListFigures.Count; i++)
+            {
+                ListFigures[i].Draw(this);
+            }
+                if (figure != null) figure.Draw(this);
         }
 
         public void AddFigure()
         {
-            ToDraw += figure.Draw;
+            ListFigures.Add(figure);
+            textBox5.Text = ListFigures.Count.ToString();
             figure = null;
+            FieldRefresh();
         }
 
         public void NotAddFigure()
         {
             figure = null;
+            FieldRefresh();
+        }
+
+        public void RemoveFigure()
+        {
+            if (ListFigures.Count > 0) ListFigures.RemoveAt(ListFigures.Count - 1);
+            FieldRefresh();
         }
 
         //временная отладочная процедура
@@ -125,6 +138,19 @@ namespace Laba1
 
             //Обработка Отжатия ЛКМ
             if (figure != null) figure.MouseUp(this, point, Form1.MouseButtons);
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Z) Z = true;
+            if (ModifierKeys == Keys.Control) Ctrl = true;
+            if (Z && Ctrl) RemoveFigure();
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Z) Z = false;
+            if (ModifierKeys != Keys.Control) Ctrl = false;
         }
     }
 
