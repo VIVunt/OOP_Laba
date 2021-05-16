@@ -8,30 +8,27 @@ using System.Drawing.Drawing2D;
 
 namespace Laba1
 {
-    public class DrawRectangle : Object, IDraw
+    public class DrawRectangle : IDraw
     {
-        private Point Point1 = new Point();
-        private Point Point2 = new Point();
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Thickness { get; set; }
-        public Color FrontColor { get; set; }
-        public Color BackColor { get; set; }
+        public Point Point1 = new Point();
+        public Point Point2 = new Point();
+        public int Width;
+        public int Height;
+        public int Thickness;
+        public Pen pen;
+        public SolidBrush brush;   
 
-        public void Initialization(Point point1, Point point2, int thickness, Color Front, Color Back)
+        public void Initialization(Point point, int thickness, Color Front, Color Back)
         {
-            this.Point1 = point1;
-            this.Point2 = point2;
-            this.Thickness = thickness;
-            this.FrontColor = Front;
-            this.BackColor = Back;
+            Point1 = point;
+            Thickness = thickness;
+            pen = new Pen(Front, thickness);
+            pen.Alignment = PenAlignment.Inset;
+            brush = new SolidBrush(Back);
         }
 
-        public void Draw(Form1 form)
+        public void Draw(Graphics graph)
         {
-            Width = Math.Abs(Point2.X - Point1.X) + 1;
-            Height = Math.Abs(Point2.Y - Point1.Y) + 1;
-
             int start1, start2;
 
             if (Point1.X <= Point2.X) start1 = Point1.X;
@@ -40,52 +37,40 @@ namespace Laba1
             if (Point1.Y <= Point2.Y) start2 = Point1.Y;
             else start2 = Point2.Y;
 
-            SolidBrush brush = new SolidBrush(BackColor);
-            Graphics graph = form.CreateGraphics();
-            Pen pen = new Pen(FrontColor, Thickness);
-            pen.Alignment = PenAlignment.Inset;
             graph.DrawRectangle(pen, start1, start2, Width, Height);
             graph.FillRectangle(brush, start1 + Thickness, start2 + Thickness, Width - Thickness * 2, Height - Thickness * 2);
-            form.Debug(start1, start2, Width,  Height, Thickness);
-            graph.Dispose();
-            pen.Dispose();
-            brush.Dispose();
         }
 
-        public void MouseDown(Form1 form, Point point, MouseButtons msbut)
+        public void SetPoint(Point point)
         {
+            Point2 = point;
+            Width = Math.Abs(Point2.X - Point1.X) + 1;
+            Height = Math.Abs(Point2.Y - Point1.Y) + 1;  
         }
 
-        public void MouseMove(Form1 form, Point point, MouseButtons msbut)
+        public void AddPoint(Point point)
         {
-            if (msbut == MouseButtons.Left)
-            {
-                //Установка конечных координат
-                this.Point2.X = point.X;
-                this.Point2.Y = point.Y;
 
-                //Обновление поля
-                form.FieldRefresh();
-            }
         }
 
-        public void MouseUp(Object form, Point point, MouseButtons msbut)
+        public void Save()
+        { 
+        
+        }
+
+        public bool IsSimpleFigure()
         {
-            if (msbut != MouseButtons.Left)
-            {
-                if ((this.Width != 0) || (this.Height != 0))
-                {
-                    //Добавление фигуры 
-                    Form1 form1 = (Form1)form; 
-                    form1.AddFigure();
-                }
-                else
-                {
-                    //Не добавление фигуры
-                    Form1 form1 = (Form1)form; 
-                    form1.NotAddFigure();
-                }
-            }
+            return true;
+        }
+
+        public int GetWidth()
+        {
+            return Width;
+        }
+
+        public int GetHeight()
+        {
+            return Height;
         }
     }
 }

@@ -17,23 +17,28 @@ namespace Laba1
         private Graphics Graph;
         private Assembly assembly = Assembly.GetExecutingAssembly();
         private List<IDraw> ListFigures = new List<IDraw>();
+        private List<IDraw> RedoListFigures = new List<IDraw>();
         private bool Ctrl = false;
         private bool Z = false;
+        private bool Y = false;
 
         public Form1()
         {
             InitializeComponent();
+
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 0;
             comboBox3.SelectedIndex = 0;
             comboBox4.SelectedIndex = 0;
+
             Graph = this.CreateGraphics();
+
         }
 
         private Type GetFigure(int n)
         {
-            string[] arr = { "DrawLine", "DrawRectangle", "DrawEllipse", "BrokenLine", "Polygon" };
-            return assembly.GetType("Laba1" + "." + arr[n]);
+            Type[] arr = { typeof(DrawLine), typeof(DrawRectangle), typeof(DrawEllipse), typeof(BrokenLine), typeof(Polygon) };
+            return arr[n];
         }
 
         private int GetThickness(int n)
@@ -53,41 +58,43 @@ namespace Laba1
             Graph.Clear(System.Drawing.SystemColors.Control);
             for (int i = 0; i < ListFigures.Count; i++)
             {
-                ListFigures[i].Draw(this);
+                ListFigures[i].Draw(Graph);
             }
-                if (figure != null) figure.Draw(this);
+        }
+
+        public void RemoveFigure()
+        {
+            if (ListFigures.Count > 0)
+            {
+                RedoListFigures.Add(ListFigures[ListFigures.Count - 1]);
+                ListFigures.RemoveAt(ListFigures.Count - 1);
+                FieldRefresh();
+            }
+        }
+
+        public void ReturnFigure()
+        {
+            if (RedoListFigures.Count > 0)
+            {
+                ListFigures.Add(RedoListFigures[RedoListFigures.Count - 1]);
+                RedoListFigures.RemoveAt(RedoListFigures.Count - 1);
+                FieldRefresh();
+            }
         }
 
         public void AddFigure()
         {
             ListFigures.Add(figure);
-            textBox5.Text = ListFigures.Count.ToString();
-            figure = null;
+            ClearRedoList();
             FieldRefresh();
         }
 
-        public void NotAddFigure()
+        public void ClearRedoList()
         {
-            figure = null;
-            FieldRefresh();
-        }
-
-        public void RemoveFigure()
-        {
-            if (ListFigures.Count > 0) ListFigures.RemoveAt(ListFigures.Count - 1);
-            FieldRefresh();
-        }
-
-        //временная отладочная процедура
-        public void Debug(int X1, int Y1, int X2, int Y2, int thickness)
-        {
-            //отладка
-            textBox1.Text = X1.ToString();
-            textBox2.Text = Y1.ToString();
-            textBox3.Text = X2.ToString();
-            textBox4.Text = Y2.ToString();
-            textBox5.Text = thickness.ToString();
-            //
+            for (int i = RedoListFigures.Count - 1; i >= 0; i--)
+            {
+                RedoListFigures.RemoveAt(i);   
+            }
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -101,65 +108,126 @@ namespace Laba1
                     figure = Activator.CreateInstance(type) as IDraw;
 
                     //Инициализация значений
-                    Point p= new Point();
-                    p.X = Form1.MousePosition.X - Location.X - 8;
-                    p.Y = Form1.MousePosition.Y - Location.Y - 32;
-                    figure.Initialization(p, p, GetThickness(comboBox2.SelectedIndex), GetColor(comboBox3.SelectedIndex), GetColor(comboBox4.SelectedIndex));
+                    Point point = new Point();
+                    point.X = Form1.MousePosition.X - Location.X - 8;
+                    point.Y = Form1.MousePosition.Y - Location.Y - 32;
+                    figure.Initialization(point, GetThickness(comboBox2.SelectedIndex), GetColor(comboBox3.SelectedIndex), GetColor(comboBox4.SelectedIndex));
+                }
+                else
+                { 
+                    //Обновление
+                    FieldRefresh();
+
+                    //Отрисовка
+                    Point point = new Point();
+                    point.X = Form1.MousePosition.X - Location.X - 8;
+                    point.Y = Form1.MousePosition.Y - Location.Y - 32;
+                    if (figure.IsSimpleFigure())
+                    {
+                        figure.SetPoint(point);
+                    }
+                    else
+                    {
+                        figure.AddPoint(point);
+                    }
+                    figure.Draw(Graph);
                 }
             }
-
-            //Инициализация значений
-            Point point = new Point();
-            point.X = Form1.MousePosition.X - Location.X - 8;
-            point.Y = Form1.MousePosition.Y - Location.Y - 32;
-
-
-            //Обработка нажатия ЛКМ
-            if (figure != null) figure.MouseDown(this, point, Form1.MouseButtons);
+            else if (Form.MouseButtons == MouseButtons.Right)
+            { 
+                if (figure != null)
+                {
+                    if (!figure.IsSimpleFigure())
+                    {
+                        //Сохранение фигуры
+                        if ((figure.GetWidth() > 0) && (figure.GetHeight() > 0))
+                        {
+                            figure.Save();
+                            AddFigure();
+                        }
+                        figure = null;
+                    }
+                }
+            }
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            //Инициализация значений
-            Point point = new Point();
-            point.X = Form1.MousePosition.X - Location.X - 8;
-            point.Y = Form1.MousePosition.Y - Location.Y - 32; 
+            if (figure != null)
+            {
+                if (figure.IsSimpleFigure())
+                {
+                    if (Form.MouseButtons == MouseButtons.Left)
+                    {
+                        //Обновление
+                        FieldRefresh();
 
-            //Обработка движения мыши
-            if (figure != null) figure.MouseMove(this, point, Form1.MouseButtons);
+                        //Отрисовка
+                        Point point = new Point();
+                        point.X = Form1.MousePosition.X - Location.X - 8;
+                        point.Y = Form1.MousePosition.Y - Location.Y - 32;
+                        figure.SetPoint(point);
+                        figure.Draw(Graph);
+                    }
+                }
+                else
+                {
+                    //Обновление
+                    FieldRefresh();
+
+                    //Отрисовка
+                    Point point = new Point();
+                    point.X = Form1.MousePosition.X - Location.X - 8;
+                    point.Y = Form1.MousePosition.Y - Location.Y - 32;
+                    figure.SetPoint(point);
+                    figure.Draw(Graph);
+                }
+            }
         }
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            //Инициализация значений
-            Point point = new Point();
-            point.X = Form1.MousePosition.X - Location.X - 8;
-            point.Y = Form1.MousePosition.Y - Location.Y - 32;
-
-            //Обработка Отжатия ЛКМ
-            if (figure != null) figure.MouseUp(this, point, Form1.MouseButtons);
+            if (figure != null)
+            {
+                if (figure.IsSimpleFigure())
+                {
+                    //Сохранение фигуры
+                    if ((figure.GetWidth() > 0) && (figure.GetHeight() > 0))
+                    {
+                        figure.Save();
+                        AddFigure();
+                    }
+                    figure = null;
+                }
+            }
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Z) Z = true;
+            if (e.KeyCode == Keys.Y) Y = true;
             if (ModifierKeys == Keys.Control) Ctrl = true;
             if (Z && Ctrl) RemoveFigure();
+            if (Y && Ctrl) ReturnFigure();
         }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Z) Z = false;
+            if (e.KeyCode == Keys.Y) Y = false;
             if (ModifierKeys != Keys.Control) Ctrl = false;
         }
     }
 
     public interface IDraw
     {
-        void Draw(Form1 form);
-        void MouseDown(Form1 form, Point point, MouseButtons msbut);
-        void MouseMove(Form1 form, Point point, MouseButtons msbut);
-        void MouseUp(Object form, Point point, MouseButtons msbut);
-        void Initialization(Point point1, Point point2, int thickness, Color Front, Color Back);
+        void Initialization(Point point, int thickness, Color Front, Color Back);
+        void Draw(Graphics graph);
+        void SetPoint(Point point);
+        void AddPoint(Point point);
+        bool IsSimpleFigure();
+        void Save();
+        int GetWidth();
+        int GetHeight();
     }
 }

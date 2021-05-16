@@ -8,94 +8,56 @@ using System.Drawing.Drawing2D;
 
 namespace Laba1
 {
-    class Polygon : Object, IDraw
+    class Polygon : IDraw
     {
-        public delegate void DrawDelegate(Form1 form);
-        public event DrawDelegate ToDraw;
-        private DrawLine line = null;
-        private Point p = new Point();
+        public Pen pen;
+        public List<Point> ListPoints = new List<Point>();
+        public Point Point1;
 
-        public int X1 { get; set; }
-        public int Y1 { get; set; }
-        public int X2 { get; set; }
-        public int Y2 { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Thickness { get; set; }
-        public Color FrontColor { get; set; }
-
-        public void Initialization(Point point1, Point point2, int thickness, Color Front, Color Back)
+        public void Initialization(Point point, int thickness, Color Front, Color Back)
         {
-            this.Thickness = thickness;
-            this.FrontColor = Front;
+            ListPoints.Add(point);
+            pen = new Pen(Front, thickness);
         }
 
-        public void Draw(Form1 form)
+        public void Draw(Graphics graph)
         {
-            //Отрисовка линий
-            if (ToDraw != null) ToDraw(form);
-            if (line != null) line.Draw(form);
-        }
-
-        public void AddFigure()
-        {
-            ToDraw += line.Draw;
-            line = null;
-        }
-
-        public void NotAddFigure()
-        {
-            line = null;
-        }
-
-        public void MouseDown(Form1 form, Point point, MouseButtons msbut)
-        {
-            if (Form.MouseButtons == MouseButtons.Left)
+            for (int i = 1; i < ListPoints.Count; i++)
             {
-                if (line != null)
-                {
-                    ToDraw += line.Draw;
-                }
-                else
-                {
-                    p.X = point.X;
-                    p.Y = point.Y;
-                }
-                //Создание линии
-                line = new DrawLine();
-                Point p2 = new Point();
-                p2.X = 0;
-                p2.Y = 0;
-                line.Initialization(point, p2, Thickness, FrontColor, Color.Black);
-
-                //Обработка нажатия ЛКМ
-                if (line != null) line.MouseDown(form, point, msbut);
+                graph.DrawLine(pen, ListPoints[i - 1], ListPoints[i]);
             }
-            else if (Form.MouseButtons == MouseButtons.Right)
-            {
-                //Обработка нажатия ПКМ
-                if (line != null) line.MouseUp(this, point, msbut);
-
-                //Создание завершающей линии
-                DrawLine finaly = new DrawLine();
-                finaly.Initialization(p, point, Thickness, FrontColor, Color.Black);
-                ToDraw += finaly.Draw;
-                form.FieldRefresh();
-
-                if (ToDraw != null) form.AddFigure();
-                else form.NotAddFigure();
-
-            }
+            graph.DrawLine(pen, ListPoints[ListPoints.Count - 1], Point1);
         }
 
-        public void MouseMove(Form1 form, Point point, MouseButtons msbut)
+        public void SetPoint(Point point)
         {
-            //Обработка движения мыши
-            if (line != null) line.MouseMove(form, point, MouseButtons.Left);
+            Point1 = point;
         }
 
-        public void MouseUp(Object form, Point point, MouseButtons msbut)
+        public void AddPoint(Point point)
         {
+            ListPoints.Add(point);
+        }
+
+        public void Save()
+        {
+            ListPoints.Add(Point1);
+            ListPoints.Add(ListPoints[0]);
+        }
+
+        public bool IsSimpleFigure()
+        {
+            return false;
+        }
+
+        public int GetWidth()
+        {
+            return 1;
+        }
+
+        public int GetHeight()
+        {
+            return 1;
         }
     }
 }
