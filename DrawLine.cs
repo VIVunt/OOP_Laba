@@ -8,23 +8,28 @@ using System.Drawing.Drawing2D;
 
 namespace Laba1
 {
+    [Serializable]
     public class DrawLine : IDraw
     {
         public Point Point1 = new Point();
         public Point Point2 = new Point();
         public int Width;
         public int Height;
-        public Pen pen;
+        public int Thickness;
+        public Color Front;
 
-        public void Initialization(Point point, int thickness, Color Front, Color Back)
+        public void Initialization(Point point, int thickness, Color front, Color back)
         {
             this.Point1 = point;
-            pen = new Pen(Front, thickness);
+            this.Thickness = thickness;
+            this.Front = front;
         }
 
         public void Draw(Graphics graph)
         {
+            Pen pen = new Pen(Front, Thickness);
             graph.DrawLine(pen, Point1, Point2);
+            pen.Dispose();
         }
 
         public void SetPoint(Point point)

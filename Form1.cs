@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Laba1
 {
@@ -174,52 +176,6 @@ namespace Laba1
             if (ModifierKeys != Keys.Control) Ctrl = false;
         }
 
-        private void OpenImage()
-        {
-            OpenFileDialog open_dialog = new OpenFileDialog(); 
-            open_dialog.Filter = "Image Files(*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
-            if (open_dialog.ShowDialog() == DialogResult.OK) 
-            {
-                try
-                {
-                    img = new Bitmap(open_dialog.FileName);
-
-                    //Обновление
-                    ClearListFigures();
-                    ClearRedoList();
-                    FieldRefresh();
-                    pictureBox1.Refresh();
-                }
-                catch
-                {
-                    DialogResult rezult = MessageBox.Show("Невозможно открыть выбранный файл",
-                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void SaveImage()
-        {
-            SaveFileDialog savedialog = new SaveFileDialog();
-            savedialog.Title = "Сохранить картинку как...";
-            savedialog.OverwritePrompt = true;
-            savedialog.CheckPathExists = true;
-            savedialog.Filter = "Image Files(*.BMP)|*.BMP|Image Files(*.JPG)|*.JPG|Image Files(*.GIF)|*.GIF|Image Files(*.PNG)|*.PNG|All files (*.*)|*.*";
-            savedialog.ShowHelp = true;
-            if (savedialog.ShowDialog() == DialogResult.OK) 
-            {
-                try
-                {
-                    pictureBox1.Image.Save(savedialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
-                }
-                catch
-                {
-                    MessageBox.Show("Невозможно сохранить изображение", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }            
-        }
-
         private Type GetFigure(int n)
         {
             Type[] arr = { typeof(DrawLine), typeof(DrawRectangle), typeof(DrawEllipse), typeof(BrokenLine), typeof(Polygon) };
@@ -295,14 +251,49 @@ namespace Laba1
             }
         }
 
-        private void OpenButton_Click(object sender, EventArgs e)
+        public void Serialize()
         {
-            OpenImage();
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            using (FileStream fs = new FileStream("../../Saved/figures.dat", FileMode.OpenOrCreate))
+            {
+                // сериализуем весь массив people
+                formatter.Serialize(fs, ListFigures);
+            }
+
+            using (FileStream fs = new FileStream("../../Saved/Redofigures.dat", FileMode.OpenOrCreate))
+            {
+                // сериализуем весь массив people
+                formatter.Serialize(fs, RedoListFigures);
+            }
+        }
+
+        public void Deserialize()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            using (FileStream fs = new FileStream("../../Saved/figures.dat", FileMode.OpenOrCreate))
+            {
+                ListFigures = (List<IDraw>)formatter.Deserialize(fs);
+
+            }
+
+            using (FileStream fs = new FileStream("../../Saved/Redofigures.dat", FileMode.OpenOrCreate))
+            {
+                RedoListFigures = (List<IDraw>)formatter.Deserialize(fs);
+
+            }
+            FieldRefresh();
         }
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            SaveImage();
+            Serialize();    
+        }
+
+        private void OpenButton_Click(object sender, EventArgs e)
+        {
+            Deserialize();   
         }
     }
 

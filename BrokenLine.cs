@@ -8,25 +8,32 @@ using System.Drawing.Drawing2D;
 
 namespace Laba1
 {
+    [Serializable]
     class BrokenLine : IDraw
     {
-        public Pen pen;
         public List<Point> ListPoints = new List<Point>();
         public Point Point1;
+        public Color Front;
+        public int Thickness;
 
-        public void Initialization(Point point, int thickness, Color Front, Color Back)
+        public void Initialization(Point point, int thickness, Color front, Color back)
         {
             ListPoints.Add(point);
-            pen = new Pen(Front, thickness);
+            Front = front;
+            Thickness = thickness;
         }
 
         public void Draw(Graphics graph)
         {
+            Pen pen = new Pen(Front, Thickness);
+
             for (int i = 1; i < ListPoints.Count; i++)
 			{
 			    graph.DrawLine(pen, ListPoints[i-1], ListPoints[i]);
             }
-            graph.DrawLine(pen, ListPoints[ListPoints.Count - 1], Point1);  
+            graph.DrawLine(pen, ListPoints[ListPoints.Count - 1], Point1);
+
+            pen.Dispose();
         }
 
         public void SetPoint(Point point)

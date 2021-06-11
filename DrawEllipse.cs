@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 
 namespace Laba1
 {
+    [Serializable]
     public class DrawEllipse : IDraw
     {
         public Point Point1 = new Point();
@@ -15,16 +16,15 @@ namespace Laba1
         public int Width;
         public int Height;
         public int Thickness;
-        public Pen pen;
-        public SolidBrush brush;   
+        public Color Front;
+        public Color Back;  
 
-        public void Initialization(Point point, int thickness, Color Front, Color Back)
+        public void Initialization(Point point, int thickness, Color front, Color back)
         {
             Point1 = point;
             Thickness = thickness;
-            pen = new Pen(Front, thickness);
-            pen.Alignment = PenAlignment.Inset;
-            brush = new SolidBrush(Back);
+            Front = front;
+            Back = back;
         }
 
         public void Draw(Graphics graph)
@@ -37,8 +37,14 @@ namespace Laba1
             if (Point1.Y <= Point2.Y) start2 = Point1.Y;
             else start2 = Point2.Y;
 
+            Pen pen = new Pen(Front, Thickness);
+            pen.Alignment = PenAlignment.Inset;
             graph.DrawEllipse(pen, start1, start2, Width, Height);
+            pen.Dispose();
+
+            SolidBrush brush = new SolidBrush(Back);
             graph.FillEllipse(brush, start1 + Thickness, start2 + Thickness, Width - Thickness * 2, Height - Thickness * 2);
+            brush.Dispose();
         }
 
         public void SetPoint(Point point)
