@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using PluginInterface;
 
 namespace Laba1
 {
@@ -17,7 +18,7 @@ namespace Laba1
         public int Height;
         public int Thickness;
         public Color Front;
-        public Color Back;  
+        public Color Back;
 
         public void Initialization(Point point, int thickness, Color front, Color back)
         {

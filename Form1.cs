@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization.Formatters.Binary;
+using PluginInterface;
 
 namespace Laba1
 {
@@ -21,6 +22,7 @@ namespace Laba1
         private Assembly assembly = Assembly.GetExecutingAssembly();
         private List<IDraw> ListFigures = new List<IDraw>();
         private List<IDraw> RedoListFigures = new List<IDraw>();
+        private List<Type> FiguresType = new List<Type> { typeof(DrawLine), typeof(DrawRectangle), typeof(DrawEllipse), typeof(DrawBrokenLine), typeof(DrawPolygon) };
         private bool Ctrl = false;
         private bool Z = false;
         private bool Y = false;
@@ -29,7 +31,7 @@ namespace Laba1
         {
             InitializeComponent();
 
-            comboBox1.SelectedIndex = 0;
+            Figures.SelectedIndex = 0;
             comboBox2.SelectedIndex = 0;
             comboBox3.SelectedIndex = 0;
             comboBox4.SelectedIndex = 0;
@@ -51,7 +53,7 @@ namespace Laba1
                 if (figure == null)
                 {
                     //Создание фигуры
-                    Type type = GetFigure(comboBox1.SelectedIndex);
+                    Type type = GetFigure(Figures.SelectedIndex);
                     figure = Activator.CreateInstance(type) as IDraw;
 
                     //Инициализация значений
@@ -178,8 +180,7 @@ namespace Laba1
 
         private Type GetFigure(int n)
         {
-            Type[] arr = { typeof(DrawLine), typeof(DrawRectangle), typeof(DrawEllipse), typeof(BrokenLine), typeof(Polygon) };
-            return arr[n];
+            return FiguresType[n];
         }
 
         private int GetThickness(int n)
@@ -257,13 +258,11 @@ namespace Laba1
 
             using (FileStream fs = new FileStream("../../Saved/figures.dat", FileMode.OpenOrCreate))
             {
-                // сериализуем весь массив people
                 formatter.Serialize(fs, ListFigures);
             }
 
             using (FileStream fs = new FileStream("../../Saved/Redofigures.dat", FileMode.OpenOrCreate))
             {
-                // сериализуем весь массив people
                 formatter.Serialize(fs, RedoListFigures);
             }
         }
@@ -295,17 +294,38 @@ namespace Laba1
         {
             Deserialize();   
         }
-    }
 
-    public interface IDraw
-    {
-        void Initialization(Point point, int thickness, Color Front, Color Back);
-        void Draw(Graphics graph);
-        void SetPoint(Point point);
-        void AddPoint(Point point);
-        bool IsSimpleFigure();
-        void Save();
-        int GetWidth();
-        int GetHeight();
+        public void LoadPlugin()
+        {
+            OpenFileDialog open_dialog = new OpenFileDialog();
+            if (open_dialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    Assembly asm = Assembly.LoadFrom(open_dialog.FileName);
+
+                    Type[] types = asm.GetTypes();
+                    foreach (Type t in types)
+                    {
+                        PluginAttribute attr = Attribute.GetCustomAttribute(t, typeof(PluginAttribute)) as PluginAttribute;
+                        if (attr != null)
+                        {
+                            FiguresType.Add(t);
+                            this.Figures.Items.Add(attr.Name);
+                        }
+                    }
+                }
+                catch
+                {
+                    DialogResult rezult = MessageBox.Show("Невозможно открыть выбранный файл",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void ChoosePlugine_Click(object sender, EventArgs e)
+        {
+            LoadPlugin();
+        }
     }
 }

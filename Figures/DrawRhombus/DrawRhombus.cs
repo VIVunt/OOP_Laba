@@ -7,10 +7,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using PluginInterface;
 
-namespace Laba1
+namespace PlugRhombus
 {
     [Serializable]
-    public class DrawRectangle : IDraw
+    [Plugin("Ромб")]
+    public class DrawRhombus : IDraw
     {
         public Point Point1 = new Point();
         public Point Point2 = new Point();
@@ -19,7 +20,6 @@ namespace Laba1
         public int Thickness;
         public Color Front;
         public Color Back;
-        public string Name { get { return "Квадрат"; } }  
 
         public void Initialization(Point point, int thickness, Color front, Color back)
         {
@@ -39,13 +39,27 @@ namespace Laba1
             if (Point1.Y <= Point2.Y) start2 = Point1.Y;
             else start2 = Point2.Y;
 
+            Point[] points1 = new Point[]{
+                new Point(start1 + (int)Math.Round((float)(Width/2)), start2),
+                new Point(start1 + Width, start2 + (int)Math.Round((float)(Height/2))),
+                new Point(start1 + (int)Math.Round((float)(Width/2)), start2 + Height),
+                new Point(start1, start2 + (int)Math.Round((float)(Height/2)))
+            };
+
+            Point[] points2 = new Point[]{
+                new Point(start1 + (int)Math.Round((float)(Width/2)), start2 + Thickness),
+                new Point(start1 + Width - Thickness, start2 + (int)Math.Round((float)(Height/2))),
+                new Point(start1 + (int)Math.Round((float)(Width/2)), start2 + Height - Thickness),
+                new Point(start1 + Thickness, start2 + (int)Math.Round((float)(Height/2)))
+            };
+
             Pen pen = new Pen(Front, Thickness);
             pen.Alignment = PenAlignment.Inset;
-            graph.DrawRectangle(pen, start1, start2, Width, Height);
+            graph.DrawPolygon(pen, points1);
             pen.Dispose();
 
             SolidBrush brush = new SolidBrush(Back);
-            graph.FillRectangle(brush, start1 + Thickness, start2 + Thickness, Width - Thickness * 2, Height - Thickness * 2);
+            graph.FillPolygon(brush, points2);
             brush.Dispose();
         }
 
@@ -53,7 +67,7 @@ namespace Laba1
         {
             Point2 = point;
             Width = Math.Abs(Point2.X - Point1.X) + 1;
-            Height = Math.Abs(Point2.Y - Point1.Y) + 1;  
+            Height = Math.Abs(Point2.Y - Point1.Y) + 1;
         }
 
         public void AddPoint(Point point)
@@ -62,8 +76,8 @@ namespace Laba1
         }
 
         public void Save()
-        { 
-        
+        {
+
         }
 
         public bool IsSimpleFigure()

@@ -5,11 +5,12 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using PluginInterface;
 
 namespace Laba1
 {
     [Serializable]
-    class BrokenLine : IDraw
+    class DrawBrokenLine : IDraw
     {
         public List<Point> ListPoints = new List<Point>();
         public Point Point1;

@@ -28,30 +28,31 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.Figures = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.comboBox4 = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.OpenButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
+            this.ChoosePlugine = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
-            // comboBox1
+            // Figures
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.Figures.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.Figures.FormattingEnabled = true;
+            this.Figures.Items.AddRange(new object[] {
             "Линия",
             "Прямоугольник",
             "Эллипс",
             "Ломаная",
             "Многоугольник"});
-            this.comboBox1.Location = new System.Drawing.Point(0, 0);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 0;
+            this.Figures.Location = new System.Drawing.Point(0, 0);
+            this.Figures.Name = "Figures";
+            this.Figures.Size = new System.Drawing.Size(121, 21);
+            this.Figures.TabIndex = 0;
             // 
             // comboBox2
             // 
@@ -127,19 +128,30 @@
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
+            // ChoosePlugine
+            // 
+            this.ChoosePlugine.Location = new System.Drawing.Point(715, 0);
+            this.ChoosePlugine.Name = "ChoosePlugine";
+            this.ChoosePlugine.Size = new System.Drawing.Size(108, 23);
+            this.ChoosePlugine.TabIndex = 7;
+            this.ChoosePlugine.Text = "Выбрать плагин";
+            this.ChoosePlugine.UseVisualStyleBackColor = true;
+            this.ChoosePlugine.Click += new System.EventHandler(this.ChoosePlugine_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(955, 451);
+            this.Controls.Add(this.ChoosePlugine);
             this.Controls.Add(this.SaveButton);
             this.Controls.Add(this.OpenButton);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.comboBox4);
             this.Controls.Add(this.comboBox3);
             this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.Figures);
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -155,13 +167,14 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox Figures;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.ComboBox comboBox3;
         private System.Windows.Forms.ComboBox comboBox4;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button OpenButton;
         private System.Windows.Forms.Button SaveButton;
+        private System.Windows.Forms.Button ChoosePlugine;
 
 
 
