@@ -258,12 +258,26 @@ namespace Laba1
 
             using (FileStream fs = new FileStream("../../Saved/figures.dat", FileMode.OpenOrCreate))
             {
-                formatter.Serialize(fs, ListFigures);
+                try
+                {
+                    formatter.Serialize(fs, ListFigures);
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
             }
 
             using (FileStream fs = new FileStream("../../Saved/Redofigures.dat", FileMode.OpenOrCreate))
             {
-                formatter.Serialize(fs, RedoListFigures);
+                try
+                {
+                    formatter.Serialize(fs, RedoListFigures);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
             }
         }
 
@@ -273,13 +287,27 @@ namespace Laba1
 
             using (FileStream fs = new FileStream("../../Saved/figures.dat", FileMode.OpenOrCreate))
             {
-                ListFigures = (List<IDraw>)formatter.Deserialize(fs);
+                try
+                {
+                    ListFigures = (List<IDraw>)formatter.Deserialize(fs);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
 
             }
 
             using (FileStream fs = new FileStream("../../Saved/Redofigures.dat", FileMode.OpenOrCreate))
             {
-                RedoListFigures = (List<IDraw>)formatter.Deserialize(fs);
+                try
+                {
+                    RedoListFigures = (List<IDraw>)formatter.Deserialize(fs);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
 
             }
             FieldRefresh();
